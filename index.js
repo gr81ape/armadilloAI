@@ -100,29 +100,29 @@ socket.on('move played', (move) => {
   // someone has played a move in our game
   // if the move just played wasn't by us, it is now
   // our turn to play.
-  round++
+  round++;
   if (move.player != playerId) {
     if(move.action == "heal"){
-      console.log(`Opponent healed!`)
-      enemyHealth += move.value
+      console.log(`Opponent healed!`);
+      enemyHealth += move.value;
       performMove()
 
     }
     else{
-      console.log(`Opponent landed a hit!`)
-      dmgReceived += move.value
-      playerHealth -= move.value
+      console.log(`Opponent landed a hit!`);
+      dmgReceived += move.value;
+      playerHealth -= move.value;
       performMove()
     }
   }
   else{
     if (move.action == "heal"){
-      console.log(`Our qritter healed!`)
-      playerHealth += move.value
+      console.log(`Our qritter healed!`);
+      playerHealth += move.value;
     }
     else{
-      console.log(`Our qritter landed a hit!`)
-      dmgInflicted += move.value
+      console.log(`Our qritter landed a hit!`);
+      dmgInflicted += move.value;
     }
   }
 })
@@ -165,26 +165,21 @@ let performMove = () => {
   // creative than this. If we don't heal our Qritter will most likely be
   // defeated in no time.
 
-  // TODO: (Ryan) Let's implement a min-max AI here! :)
   /*
     Factors:
       Probability of killing the enemy
       - Probability of us being killed
       - Probability of losing by less damage inflicted
+      + How close we are to the end of the game
+      * How likely we are to lose the game as of the present round
   */
   let probability = (killProbability(enemyHealth) - killProbability(playerHealth)) +
-      (((round/60)/4) * loseProbability(round, dmgInflicted, dmgReceived));
-  if (probability <= 0){
+      (((round/60)) * loseProbability(round, dmgInflicted, dmgReceived));
+  if (probability >= 0){
     let body = {action: "attack"}
   }
   else{
-    // Heal 2x as often as chance of critical hit, will statistically protect us from critical hits
-    if(probability > 0.5) {
-      let body = {action: "heal"}
-    }
-    else{
-      let body = {action: "attack"}
-    }
+    let body = {action: "heal"}
   }
   let options = createOptions("moves", "POST", body)
 
