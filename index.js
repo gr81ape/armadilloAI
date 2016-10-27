@@ -175,11 +175,12 @@ let performMove = () => {
   */
   let probability = (killProbability(enemyHealth) - killProbability(playerHealth)) +
       (((round/60)) * loseProbability(round, dmgInflicted, dmgReceived));
+  let body
   if (probability >= 0){
-    let body = {action: "attack"}
+    body = {action: "attack"}
   }
   else{
-    let body = {action: "heal"}
+    body = {action: "heal"}
   }
   let options = createOptions("moves", "POST", body)
 
