@@ -91,22 +91,18 @@ socket.on('success', (player) => {
 })
 
 socket.on('start game', (game) => {
-  // our Qritter has started battling against another Qritter
-  console.log('game started')
   dmgInflicted = 0
   dmgReceived = 0
   playerHealth = 100
   enemyHealth = 100
   round = 0
-  // we want to retrieve the game information
-  getGame(game.id)
-      .then((game) => {
-        // we check game.current to see if it is our turn to play.
-        // if so, we perform move
-        if (game.current === playerId) {
-          performMove()
-        }
-      })
+
+  // our Qritter has started battling against another Qritter
+  console.log('game started')
+
+  if (game.current === playerId) {
+    performMove()
+  }
 })
 
 socket.on('in game', (game) => {
