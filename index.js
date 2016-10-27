@@ -39,18 +39,18 @@ var killProbability = function (health) {
   return enemyKillProbability
 }
 
-var loseProbability = function(round, dmgInflicted, dmgReceived){
+var loseProbability = function(dmgInflicted, dmgReceived){
   if (dmgInflicted - dmgReceived < (-50)){   // their lead is greater than 50
     return 1;
   }
   else if ( (-30) > dmgInflicted - dmgReceived){  // their lead is in between 30-50
     let lead = abs(dmgInflicted - dmgReceived)
     let placeholder = 50 - lead
-    return (0.1 * (placeholder * 0.05)
+    return (0.1 * (placeholder * 0.05))
   }
   else if (0 > dmgInflicted - dmgReceived){ // their lead is in between 0-30
     let lead = abs(dmgInflicted - dmgReceived)
-    led placeholder = 30 - lead
+    let placeholder = 30 - lead
     return (0.1 + (placeholder * 0.33))
   }
   else if (dmgInflicted - dmgReceived == 0){ // there is no lead
@@ -62,7 +62,7 @@ var loseProbability = function(round, dmgInflicted, dmgReceived){
   else if( 30 < dmgInflicted - dmgReceived){ // we have a lead between 30 and 50
     let lead = dmgInflicted - dmgReceived
     let placeholder = 50 - lead
-    return 1 - ((0.1 * (placeholder * 0.05))
+    return 1 - ((0.1 * (placeholder * 0.05)))
   }
   else if(0 < dmgInflicted - dmgReceived){ // we have a lead between 0-30
       let lead = dmgInflicted - dmgReceieved
@@ -204,7 +204,7 @@ let performMove = () => {
       * How likely we are to lose the game as of the present round
   */
   let probability = (killProbability(enemyHealth) - killProbability(playerHealth)) +
-      (((round/60)) * loseProbability(round, dmgInflicted, dmgReceived));
+      (((round/60)) * loseProbability(dmgInflicted, dmgReceived));
   let body
   if (probability >= 0){
     body = {action: "attack"}
