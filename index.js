@@ -49,7 +49,7 @@ var loseProbability = function(dmgInflicted, dmgReceived){
     return (0.1 * (placeholder * 0.05))
   }
   else if (0 > dmgInflicted - dmgReceived){ // their lead is in between 0-30
-    let lead = abs(dmgInflicted - dmgReceived)
+    let lead = Math.abs(dmgInflicted - dmgReceived)
     let placeholder = 30 - lead
     return (0.1 + (placeholder * 0.33))
   }
@@ -218,7 +218,7 @@ let performMove = () => {
     if (error || res.statusCode !== 200) {
       console.log("Error Performing Move", error || res.body)
     } else {
-      if(body[action]="attack"){
+      if(body.action="attack"){
         console.log(`attack performed successfully`)
       }
       else{
