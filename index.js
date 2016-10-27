@@ -9,7 +9,11 @@ console.log("Welcome to the Qritter Wars Client")
 
 // we want to keep track of our player ID, which will be handed to us upon successful signon
 let playerId
-let playerObj
+let dmgInflicted
+let dmgReceived
+let playerHealth = 100;
+let enemyHealth = 100;
+let round = 0;
 
 // These arguments are passed to the Qritter Wars Socket Server for authentication
 const socketArguments = `apiId=${config.apiId}&apiSecret=${config.apiSecret}`
@@ -18,6 +22,27 @@ const socketArguments = `apiId=${config.apiId}&apiSecret=${config.apiSecret}`
 // for authentication
 // format: base64 encoded value of <apiId>:<apiSecret>
 const apiKey = new Buffer(`${config.apiId}:${config.apiSecret}`).toString('base64')
+
+var killProbability = function (health) {
+  let enemyKillProbability
+  if (health <= 30){
+    // Enemy kill probability is all of critical hit probs + some regular hits
+    enemyKillProbability = (0.1+(0.8*(health/30)))
+  }
+  else if (health <= 50){
+    // Enemy kill probability is some critical hit probs
+    enemyKillProbability = (0.1*(health-30/20))
+  }
+  else {
+    enemyKillProbability = 0;
+  }
+  return enemyKillProbability
+}
+
+var loseProbability = function(round, dmgInflicted, dmgReceived){
+  // TODO: Implement probability of loss
+  return 0;
+}
 
 // here we connect to the socket, passing the apiId and apiSecret
 const socket = io.connect(`http://${config.host}:${config.socketPort}`, {query: socketArguments})
@@ -38,7 +63,11 @@ socket.on('success', (player) => {
 socket.on('start game', (game) => {
   // our Qritter has started battling against another Qritter
   console.log('game started')
-
+  dmgInflicted = 0
+  dmgReceived = 0
+  playerHealth = 100
+  enemyHealth = 100
+  round = 0
   // we want to retrieve the game information
   getGame(game.id)
       .then((game) => {
@@ -71,10 +100,30 @@ socket.on('move played', (move) => {
   // someone has played a move in our game
   // if the move just played wasn't by us, it is now
   // our turn to play.
-
+  round++
   if (move.player != playerId) {
-    console.log(`opponent performed ${move.result}`)
-    performMove()
+    if(move.action == "heal"){
+      console.log(`Opponent healed!`)
+      enemyHealth += move.value
+      performMove()
+
+    }
+    else{
+      console.log(`Opponent landed a hit!`)
+      dmgReceived += move.value
+      playerHealth -= move.value
+      performMove()
+    }
+  }
+  else{
+    if (move.action == "heal"){
+      console.log(`Our qritter healed!`)
+      playerHealth += move.value
+    }
+    else{
+      console.log(`Our qritter landed a hit!`)
+      dmgInflicted += move.value
+    }
   }
 })
 
@@ -118,13 +167,17 @@ let performMove = () => {
 
   // TODO: (Ryan) Let's implement a min-max AI here! :)
   /*
+    Factors:
+      Probability of killing the enemy
+      - Probability of us being killed
+      - Probability of losing by less damage inflicted
   */
-
-  if (60 > 50){
+  let probability = (killProbability(enemyHealth) - killProbability(playerHealth)) +
+      (((round/60)/4) * loseProbability(round, dmgInflicted, dmgReceived));
+  if (probability <= 0){
     let body = {action: "attack"}
   }
   else{
-    let probability = (60/60);
     // Heal 2x as often as chance of critical hit, will statistically protect us from critical hits
     if(probability > 0.5) {
       let body = {action: "heal"}
